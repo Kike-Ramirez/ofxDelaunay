@@ -28,7 +28,7 @@ class ofxDelaunay {
     
 public:
     
-	void reset(ofImage input);
+    void reset(ofImage input_, ofColor colorTriangle_);
 	
 	int addPoint( const ofPoint& point );
 	int addPoint( float x, float y, float z);
@@ -43,11 +43,13 @@ public:
 	int getNumPoints();
 	ITRIANGLE getTriangleAtIndex(int index);
 
-	int  triangulate();
+    int  triangulate();
 	void draw();
 	
     ofMesh triangleMesh; //output of triangulate();
-	ofImage image;
+    ofImage input;
+    ofColor colorTriangle;
+
 
 private:
 

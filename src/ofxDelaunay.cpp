@@ -23,13 +23,13 @@ bool ptInTriangle(const ofVec2f & p, const XYZ & p0, const XYZ & p1, const XYZ& 
     return s > 0.0f && t > 0.0f && (s + t) < 2.0f * A * sign;
 }
 
-void ofxDelaunay::reset(ofImage input)
-{
+void ofxDelaunay::reset(ofImage input_, ofColor colorTriangle_){
     vertices.clear();
     triangles.clear();
 	triangleMesh.clear();
 	ntri = 0;
-	image.clone(input);
+    input.clone(input_);
+    colorTriangle = colorTriangle_;
 }
 
 int ofxDelaunay::addPoint( const ofPoint& point ){
@@ -93,8 +93,16 @@ int ofxDelaunay::triangulate(){
 	
     //copy vertices
 	for (int i = 0; i < nv; i++){
+        ofPoint centro = ofPoint(vertices[i].x,vertices[i].y,vertices[i].z);
+        ofColor colorCentro = input.getColor(centro.x, centro.y);
+
+        float centroBrightness = input.getColor(centro.x, centro.y).getBrightness();
+
+        colorCentro.set(colorTriangle);
+        colorCentro.setBrightness(centroBrightness);
+
         triangleMesh.addVertex(ofVec3f(vertices[i].x,vertices[i].y,vertices[i].z));
-		triangleMesh.addColor(image.getColor(vertices[i].x, vertices[i].y));
+        triangleMesh.addColor(colorCentro);
     }
 	
 	//copy triangles
@@ -118,7 +126,7 @@ void ofxDelaunay::draw(){
 //	for(int i = 0; i < vertices.size(); i++ ){
 //		ofDrawBitmapStringHighlight(ofToString(i) , vertices[i].x, vertices[i].y);
 //	}
-	//ofDrawBitmapStringHighlight("tri: " + ofToString(ntri) + "\nver:" + ofToString(vertices.size()), 30, 300);
+    // ofDrawBitmapStringHighlight("tri: " + ofToString(ntri) + "\nver:" + ofToString(vertices.size()), 30, 300);
 }
 
 
