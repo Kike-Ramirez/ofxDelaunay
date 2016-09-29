@@ -96,23 +96,38 @@ int ofxDelaunay::triangulate(){
         ofPoint centro = ofPoint(vertices[i].x,vertices[i].y,vertices[i].z);
         ofColor colorCentro = input.getColor(centro.x, centro.y);
 
-        float centroBrightness = input.getColor(centro.x, centro.y).getBrightness();
+        float centroBrightness = input.getColor(centro.x, centro.y).getLightness();
 
-        colorCentro.set(colorTriangle);
-        colorCentro.setBrightness(centroBrightness);
+        colorCentro.set(colorTriangle.r, colorTriangle.g, colorTriangle.b, centroBrightness);
 
         triangleMesh.addVertex(ofVec3f(vertices[i].x,vertices[i].y,vertices[i].z));
         triangleMesh.addColor(colorCentro);
     }
 	
 	//copy triangles
-	for(int i = 0; i < ntri; i++){
+    for(int i = 0; i < ntri; i++){
 		triangleMesh.addIndex(verticesTemp.at(triangles[ i ].p1).i);
 		triangleMesh.addIndex(verticesTemp.at(triangles[ i ].p2).i);
 		triangleMesh.addIndex(verticesTemp.at(triangles[ i ].p3).i);
 	}
 	
 	return ntri;
+}
+
+void ofxDelaunay::setHue(ofColor colorTriangle_)
+{
+
+    for (int i = 0; i < vertices.size(); i++)
+    {
+
+        ofPoint punto = triangleMesh.getVertex(i);
+        ofColor colorPunto = colorTriangle_;
+        float transp = input.getColor(punto.x, punto.y).getLightness();
+        colorPunto.set(colorTriangle_.r, colorTriangle_.g, colorTriangle_.b, transp);
+        triangleMesh.setColor(i, colorPunto);
+
+    }
+
 }
 
 void ofxDelaunay::draw(){

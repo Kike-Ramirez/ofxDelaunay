@@ -42,6 +42,7 @@ public:
 	int getNumTriangles();
 	int getNumPoints();
 	ITRIANGLE getTriangleAtIndex(int index);
+    void setHue(ofColor colorTriangle_);
 
     int  triangulate();
 	void draw();
