@@ -111,7 +111,7 @@ int ofxDelaunay::triangulate(){
 	return ntri;
 }
 
-void ofxDelaunay::setHue(ofColor colorTriangle_)
+void ofxDelaunay::setColor(ofColor colorTriangle_, float opacityGrid_)
 {
 
     for (int i = 0; i < vertices.size(); i++)
@@ -119,12 +119,14 @@ void ofxDelaunay::setHue(ofColor colorTriangle_)
 
         ofPoint punto = triangleMesh.getVertex(i);
         ofColor colorPunto = colorTriangle_;
-        colorPunto.a = input.getColor(punto.x, punto.y).getLightness();
+        // colorPunto.a = input.getColor(punto.x, punto.y).getLightness() * opacityGrid_/100;
+        colorPunto.a = opacityGrid_/100*255;
         triangleMesh.setColor(i, colorPunto);
 
     }
 
 }
+
 
 void ofxDelaunay::draw(){
 	if(ofGetStyle().bFill){
