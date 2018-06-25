@@ -23,12 +23,12 @@ bool ptInTriangle(const ofVec2f & p, const XYZ & p0, const XYZ & p1, const XYZ& 
     return s > 0.0f && t > 0.0f && (s + t) < 2.0f * A * sign;
 }
 
-void ofxDelaunay::reset(ofImage input_, ofColor colorTriangle_){
+void ofxDelaunay::reset(ofColor colorTriangle_){
     vertices.clear();
     triangles.clear();
 	triangleMesh.clear();
+	thickMeshes.clear();
 	ntri = 0;
-    input.clone(input_);
     colorTriangle = colorTriangle_;
 }
 
@@ -94,11 +94,7 @@ int ofxDelaunay::triangulate(){
     //copy vertices
 	for (int i = 0; i < nv; i++){
         ofPoint centro = ofPoint(vertices[i].x,vertices[i].y,vertices[i].z);
-        ofColor colorCentro = input.getColor(centro.x, centro.y);
-
-        colorCentro.a = input.getColor(centro.x, centro.y).getBrightness();
         triangleMesh.addVertex(ofVec3f(vertices[i].x,vertices[i].y,vertices[i].z));
-        triangleMesh.addColor(colorCentro);
     }
 	
 	//copy triangles
@@ -111,47 +107,99 @@ int ofxDelaunay::triangulate(){
 	return ntri;
 }
 
-void ofxDelaunay::setColor(ofColor colorTriangle_, float opacityGrid_)
+void ofxDelaunay::setColor(ofColor colorTriangle_, float opacityGrid_, ofImage input, ofImage maskGrid)
 {
 
-    for (int i = 0; i < vertices.size(); i++)
+    for (int i = 0; i < triangleMesh.getNumVertices(); i++)
     {
 
         ofPoint punto = triangleMesh.getVertex(i);
+
         ofColor colorPunto = colorTriangle_;
-        // colorPunto.a = input.getColor(punto.x, punto.y).getLightness() * opacityGrid_/100;
-        colorPunto.a = opacityGrid_/100*255;
-        triangleMesh.setColor(i, colorPunto);
+
+		colorPunto.a = 255.0 * opacityGrid_ / 100.0;
+
+		// if (input.isAllocated()) colorPunto.a = colorPunto.a * input.getColor(punto.x, punto.y).getBrightness() / 255.0;
+
+		if (maskGrid.isAllocated()) colorPunto.a = colorPunto.a * maskGrid.getColor(punto.x, punto.y).getLightness() / 255.0;
+
+        triangleMesh.addColor(colorPunto);
+
 
     }
 
 }
 
 
-void ofxDelaunay::draw(){
-	if(ofGetStyle().bFill){
-	    triangleMesh.draw();
-    }
-    else{
-    	triangleMesh.drawWireframe();
+void ofxDelaunay::draw() {
+	if (ofGetStyle().bFill) {
+		triangleMesh.draw();
+	}
+	else {
 
-		vector<ofIndexType> indices = triangleMesh.getIndices();
-		vector<ofPoint> vertices = triangleMesh.getVertices();
+		triangleMesh.drawWireframe();
 
-		for (int i = 0; i < vertices.size(); i++) {
-
-			for (int j = 0; j < indices.size(); j++) {
-			
-				
-			}
-		}
-    }
-
-//	for(int i = 0; i < vertices.size(); i++ ){
-//		ofDrawBitmapStringHighlight(ofToString(i) , vertices[i].x, vertices[i].y);
-//	}
-    // ofDrawBitmapStringHighlight("tri: " + ofToString(ntri) + "\nver:" + ofToString(vertices.size()), 30, 300);
+	}
 }
+
+void ofxDelaunay::drawQuad(ofPoint a, ofPoint b, ofColor colorA, ofColor colorB, float thickness) {
+
+	float angle = 180 / PI * atan2f(b.y - a.y, b.x - a.x);
+	float distance = a.distance(b);
+	ofPoint aup = ofPoint(0, thickness * 0.5);
+	ofPoint adown = ofPoint(0, -thickness * 0.5);
+	ofPoint bup = ofPoint(distance, thickness * 0.5);
+	ofPoint bdown = ofPoint(distance, -thickness * 0.5);
+
+	ofMesh temp;
+	temp.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+	temp.addVertex(adown);
+	temp.addColor(colorA);
+	temp.addVertex(aup);
+	temp.addColor(colorA);
+	temp.addVertex(bdown);
+	temp.addColor(colorB);
+	temp.addVertex(bup);
+	temp.addColor(colorB);
+	temp.addIndex(0);
+	temp.addIndex(1);
+	temp.addIndex(2);
+	temp.addIndex(2);
+	temp.addIndex(1);
+	temp.addIndex(3);
+
+	ofPushMatrix();
+	ofTranslate(a);
+	ofRotate(angle);
+	temp.draw();
+	ofPopMatrix();
+
+}
+
+
+void ofxDelaunay::drawThickness(float thickness) {
+
+	int nIndexs = triangleMesh.getNumIndices();
+	vector<ofIndexType> indices = triangleMesh.getIndices();
+	vector<ofPoint> vertexs = triangleMesh.getVertices();
+
+	for (int j = 0; j < nIndexs - 2 ; j += 3) {
+
+		ofPoint a = vertexs[indices[j]];
+		ofPoint b = vertexs[indices[j+1]];
+		ofPoint c = vertexs[indices[j+2]];
+
+		ofColor colorA = triangleMesh.getColor(indices[j]);
+		ofColor colorB = triangleMesh.getColor(indices[j+1]);
+		ofColor colorC = triangleMesh.getColor(indices[j+2]);
+
+		drawQuad(a, b, colorA, colorB, thickness);
+		drawQuad(b, c, colorA, colorB, thickness);
+		drawQuad(c, a, colorA, colorB, thickness);
+	}
+
+}
+
 
 
 int ofxDelaunay::getNumTriangles(){
