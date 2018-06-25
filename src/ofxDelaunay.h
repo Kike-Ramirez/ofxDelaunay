@@ -47,7 +47,7 @@ public:
     int  triangulate();
 	void draw();
 	
-    ofMesh triangleMesh; //output of triangulate();
+    ofVboMesh triangleMesh; //output of triangulate();
     ofImage input;
     ofColor colorTriangle;
 

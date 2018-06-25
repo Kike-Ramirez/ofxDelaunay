@@ -134,6 +134,17 @@ void ofxDelaunay::draw(){
     }
     else{
     	triangleMesh.drawWireframe();
+
+		vector<ofIndexType> indices = triangleMesh.getIndices();
+		vector<ofPoint> vertices = triangleMesh.getVertices();
+
+		for (int i = 0; i < vertices.size(); i++) {
+
+			for (int j = 0; j < indices.size(); j++) {
+			
+				
+			}
+		}
     }
 
 //	for(int i = 0; i < vertices.size(); i++ ){
