@@ -123,13 +123,35 @@ void ofxDelaunay::setColor(ofColor colorTriangle_, float opacityGrid_, ofImage i
 
 		if (maskGrid.isAllocated()) colorPunto.a = colorPunto.a * maskGrid.getColor(punto.x, punto.y).getLightness() / 255.0;
 
-        triangleMesh.addColor(colorPunto);
+        triangleMesh.setColor(i, colorPunto);
 
 
     }
 
 }
 
+void ofxDelaunay::addColor(ofColor colorTriangle_, float opacityGrid_, ofImage input, ofImage maskGrid)
+{
+    
+    for (int i = 0; i < triangleMesh.getNumVertices(); i++)
+    {
+        
+        ofPoint punto = triangleMesh.getVertex(i);
+        
+        ofColor colorPunto = colorTriangle_;
+        
+        colorPunto.a = 255.0 * opacityGrid_ / 100.0;
+        
+        // if (input.isAllocated()) colorPunto.a = colorPunto.a * input.getColor(punto.x, punto.y).getBrightness() / 255.0;
+        
+        if (maskGrid.isAllocated()) colorPunto.a = colorPunto.a * maskGrid.getColor(punto.x, punto.y).getLightness() / 255.0;
+        
+        triangleMesh.addColor(colorPunto);
+        
+        
+    }
+    
+}
 
 void ofxDelaunay::draw() {
 	if (ofGetStyle().bFill) {

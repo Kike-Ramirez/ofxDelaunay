@@ -43,6 +43,8 @@ public:
 	int getNumPoints();
 	ITRIANGLE getTriangleAtIndex(int index);
     void setColor(ofColor colorTriangle_, float opacityGrid_, ofImage input_, ofImage maskGrid_);
+    void addColor(ofColor colorTriangle_, float opacityGrid_, ofImage input_, ofImage maskGrid_);
+
 	void drawThickness(float thickness);
 	void drawQuad(ofPoint a, ofPoint b, ofColor colorA, ofColor colorB, float thickness);
     int  triangulate();
